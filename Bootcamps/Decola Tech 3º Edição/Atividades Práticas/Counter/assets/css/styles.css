@@ -1,0 +1,116 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;700&display=swap');
+
+* {
+    font-family: 'Open Sans', sans-serif;
+}
+
+body {
+    display: flex;    
+    flex-direction: column;
+    align-items: center;
+    background-color: #cce5ff;
+}
+
+header h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 400;
+    margin: 0;
+}
+
+#counter {
+    display: flex;
+    flex-direction: column;
+    width: 200px;
+    height: 200px;
+    padding: 15px;
+    border-radius: 30px;
+    background-color: #ecf0f3;
+    box-shadow: inset 5px 5px 12px #ffffff,
+    5px 5px 12px rgba(0, 0, 0, 0.15);
+}
+
+#counterNumber {    
+    width: 130px;
+    height: 120px;
+    margin: auto;
+    text-align: center;
+    font-size: 64pt;
+    color: #464646;
+    border: 1px solid #ecf0f3;
+    border-radius: 30px;
+    background-color: #ecf0f3;
+    box-shadow: inset -5px -5px 12px #ffffff,
+    inset 5px 5px 12px rgba(0, 0, 0, 0.15);
+}
+
+#counterButtons {
+    display: flex;
+    margin: auto;
+}
+
+#counterButtons button {
+    width: 50px;
+    height: 50px;
+    margin: 5px;
+    font-size: 16pt;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    border-radius: 15px;
+    background-color: #ecf0f3;
+    box-shadow: inset -1px -1px 5px 0px #ffffff,
+    inset -4px -3px 5px rgba(0, 0, 0, 0.15),
+    2px 1px 5px rgba(0, 0, 0, 0.35);
+}
+
+#counterButtons button:active {
+    box-shadow: inset -1px -1px 5px 0px #ffffff,
+    inset -4px -3px 5px rgba(0, 0, 0, 0.15),
+    inset 2px 1px 5px rgba(0, 0, 0, 0.35);
+}
+
+#squares {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    justify-content: center;
+    width: 250px;
+    height: 25px;
+    margin: 20px 0 0 0;
+    padding: 10px;
+    border: 1px solid #ecf0f3;
+    border-radius: 30px;
+    background-color: #ecf0f3;
+    box-shadow: inset 5px 5px 12px #ffffff,
+    5px 5px 12px rgba(0, 0, 0, 0.15);   
+}
+
+.square {
+    width: 20px;
+    height: 20px;
+    margin: 1px;  
+}
+
+.squarePositive {
+    border: 1px solid #036603;
+    background-color: #5cb85c;    
+}
+
+.squareNegative {
+    border: 1px solid #860a06;
+    background-color: #d9534f;    
+}
+
+.negative {
+    border: 1px solid #d43f3a !important;
+}
+
+.positive {
+    border: 1px solid #4cae4c !important;
+}
+
+.warning {
+    border: 1px solid #eba745 !important;
+}
