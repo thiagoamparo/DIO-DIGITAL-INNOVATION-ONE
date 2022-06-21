@@ -6,19 +6,19 @@ Para este projeto, será utilizado o conhecimento prévio em funções da lingua
 
 Dadas as seguintes funções:
 
-```
+```js
 function calculateAge(age) {
     return `O curso de ${this.name} tem duração de ${age} anos, sendo completado com ${this.age + age} anos de idade.`;
 }
 ```
 
-```
+```js
 function calculateMean(mean) {
     return `${this.name} tem uma média de ${this.mean.toFixed(2)}, e recebeu ${mean.toFixed(2)} pontos extras, ficando com ${(this.mean + mean).toFixed(2)}`;
 }
 ```
 
-```
+```js
 function changeClasses(newClass) {
     return `${this.name} atualmente está na turma ${this.class}, porém será remanejado para ${newClass}`;
 }
