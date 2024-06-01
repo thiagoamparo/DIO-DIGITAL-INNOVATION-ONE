@@ -1,0 +1,54 @@
+version: '3.9'
+
+services:
+
+  www:
+    image: webdevops/php-apache:alpine-php7
+    ports:
+      - '80:80'
+    volumes:
+      - www_data:/app
+    networks:
+      - public
+    deploy:
+      replicas: 10
+      placement:
+        constraints: [node.role == worker]
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+      restart_policy:
+        condition: on-failure
+  
+  database:
+    image: mysql:5.7
+    environment:
+      - MYSQL_DATABASE=Tasks
+      - MYSQL_USER=admin
+      - MYSQL_ROOT_PASSWORD=admin
+      - MYSQL_PASSWORD=admin
+    ports:
+      - "3306:3306"
+    volumes:
+      - database_data:/var/lib/mysql
+    networks:
+      - public
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+      restart_policy:
+        condition: on-failure
+
+volumes:
+  www_data:
+  database_data:
+  
+networks:
+  public:
+    driver: overlay

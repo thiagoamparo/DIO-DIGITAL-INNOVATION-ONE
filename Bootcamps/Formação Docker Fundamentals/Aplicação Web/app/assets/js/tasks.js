@@ -46,7 +46,7 @@ function addTask(id, name, control, task) {
             // A requisição foi bem-sucedida.
 
             // Adiciona a tarefa criada a lista de objetos.
-            TASKS.push({'id' : id, 'name' : name, 'control' : control, 'task' : task});
+            TASKS.push({'id' : TASKS.length, 'name' : name.value, 'control' : control.checked, 'task' : task});
 
             // Exibe a resposta da requisição no console.
             console.log(request.responseText); 
@@ -73,7 +73,7 @@ function addTask(id, name, control, task) {
     request.send(formData);
 }
 
-// Cria tarefas novas ao clicar no botao de inserir.
+// Cria tarefas novas.
 function createTask() {
 
     // Coleta o elemento 'nameTask' da pagina HTML.
@@ -111,8 +111,8 @@ function createTask() {
     }
 }
 
-// Inseri tarefas do banco de dados na pagina.
-function insertTask(id, name, controlbox) {
+// Cria tarefas novas.
+function insertTask(id, name, value) {
 
     // Verifica se a tarefa criada é valida.
     if (validateTask(name)) {
@@ -124,7 +124,7 @@ function insertTask(id, name, controlbox) {
         let task = taskSpace();
 
         // Cria o 'checkbox' para uma tarefa.
-        let control = checkbox(id, controlbox)
+        let control = checkbox(id)
 
         // Insere o 'checkbox' no elemento HTML criado.
         task.appendChild(control);
@@ -133,13 +133,16 @@ function insertTask(id, name, controlbox) {
         task.appendChild(text(name));
 
         // Insere o 'button' no elemento HTML criado.
-        task.appendChild(button(task, id));
+        task.appendChild(button(task));
 
         // Insere a tarefa criada no elemento HTML 'createdTasks'.
         createdTask.appendChild(task);
         
         // Adiciona a tarefa criada a lista de objetos.
-        TASKS.push({'id' : id, 'name' : name, 'control' : controlbox, 'task' : task});
+        TASKS.push({'id' : id, 'name' : name, 'control' : value, 'task' : task});
+
+        // Limpa o campo digitado.
+        name.value = '';
     }
 }
 
@@ -179,7 +182,7 @@ function validateTask(nameTask) {
 }
 
 // Cria e retorna um botao.
-function button(task, id=TASKS.length) {
+function button(task) {
 
     // Cria um elemento HTML do tipo 'button'.
     let button = document.createElement('button');
@@ -191,7 +194,7 @@ function button(task, id=TASKS.length) {
     button.addEventListener('click', function(event){
 
         // Remove a tarefa criada.
-        removeTask(id, task);
+        removeTask(TASKS.length, task);
 
     });
 
@@ -200,7 +203,7 @@ function button(task, id=TASKS.length) {
 }
 
 // Cria e retorna um checkbox.
-function checkbox(id, value=0) {
+function checkbox(id) {
 
     // Cria um elemento HTML do tipo 'input'.
     let checkbox = document.createElement('input');
@@ -208,11 +211,10 @@ function checkbox(id, value=0) {
     // Configura o tipo do input para um 'checkbox'.
     checkbox.type = 'checkbox';
 
-    // Configura o preenchimento do 'checkbox'.
-    checkbox.checked = Boolean(value);
-
     // Adiciona um evento 'click' ao checkbox para atualizar a tarefa.
     checkbox.addEventListener('click', function(event){
+
+        console.log(Number(checkbox.checked))
 
         // Atualiza a tarefa criada.
         updateTask(id, Number(checkbox.checked));
@@ -420,8 +422,7 @@ function removeTask(id, task) {
     request.send(formData);
 }
 
-// Carrega todas as tarefas do banco de dados na pagina.
-function loadTasks() {
+function getTasks() {
 
     // Cria um objeto do tipo FormData para enviar os dados.
     var formData = new FormData();
@@ -445,10 +446,15 @@ function loadTasks() {
 
             var tasks = JSON.parse(request.responseText);
 
-            // Percorre o array de objetos JSON.
-            tasks.forEach(function(task) {
+            console.log(tasks)
 
-                // Insere as tarefas do banco de dados
+            // Percorre o array de objetos JSON
+            tasks.forEach(function(task) {
+                // Imprime os dados de cada objeto
+                console.log("ID: " + task.ID);
+                console.log("Nome: " + task.Name);
+                console.log("Controle: " + task.Control);
+
                 insertTask(task.ID, task.Name, task.Control);
             });
 
@@ -469,11 +475,3 @@ function loadTasks() {
     // Envia os dados da solicitação.
     request.send(formData);
 }
-
-// Executa automaticamente ao carregar o script.
-(function(){
-
-    // Carrega todas as tarefas do banco de dados na pagina.
-    loadTasks();
-
-})();
