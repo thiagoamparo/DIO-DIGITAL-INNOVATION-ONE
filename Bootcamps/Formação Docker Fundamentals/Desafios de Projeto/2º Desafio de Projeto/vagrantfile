@@ -1,0 +1,79 @@
+PROVIDER_VM = "hyperv"
+INTERFACE_VM = "vEthernet (Default Switch)"
+GATEWAY_VM = `powershell -Command "Get-NetIPAddress -InterfaceAlias '#{INTERFACE_VM}' | Where-Object { $_.AddressFamily -eq 'IPv4' } | Select-Object -ExpandProperty IPAddress"`.strip
+GATEWAY_MASK_VM = `powershell -Command "Get-NetIPAddress -InterfaceAlias '#{INTERFACE_VM}' | Where-Object { $_.AddressFamily -eq 'IPv4' } | Select-Object -ExpandProperty PrefixLength"`.strip
+
+WINDOWS_IP = `powershell -Command "(ipconfig | findstr /i "IPv4").Split()[-1]"`
+WINDOWS_USERNAME = ENV['USER']
+WINDOWS_DIRECTORY = `powershell -Command "$OutputEncoding = [System.Text.Encoding]::UTF8; $PWD.Path"`
+
+PREFIX_ADDRESS = "172.19.120"
+
+DOCKER_PORT = "2377"
+
+MACHINES = {
+
+  "Master" => {"MEMORY" => "1024", "CPU" => "1", "IP" => "100", "IMAGE" => "generic/ubuntu2204"},
+  "Alpha" => {"MEMORY" => "1024", "CPU" => "1", "IP" => "101", "IMAGE" => "generic/ubuntu2204"},
+  "Bravo" => {"MEMORY" => "1024", "CPU" => "1", "IP" => "102", "IMAGE" => "generic/ubuntu2204"},
+  "Charlie" => {"MEMORY" => "1024", "CPU" => "1", "IP" => "103", "IMAGE" => "generic/ubuntu2204"}
+
+}
+
+TOKEN_PATH = "/home/vagrant/tokens/token-#{PREFIX_ADDRESS}.#{MACHINES["Master"]["IP"]}.txt"
+DOCKER_INFRASTRUCTURE_PATH = "/home/vagrant/compose"
+DOCKER_STACK_NAME = "tasks"
+
+PATH_VOLUMES = [
+
+  "/var/lib/docker/volumes/#{DOCKER_STACK_NAME}_www_data/_data",
+  "/var/lib/docker/volumes/#{DOCKER_STACK_NAME}_database_data/_data"
+
+]
+
+puts "Cluster Creation Started."
+puts "Selected Provider: #{PROVIDER_VM}"
+puts "VM Interface: #{INTERFACE_VM}"
+puts "VM Gateway: #{GATEWAY_VM}"
+puts "VM Gateway Mask: #{GATEWAY_MASK_VM}"
+
+Vagrant.configure("2") do |config|
+
+  MACHINES.each do |name, conf|
+
+    config.vm.define "#{name}" do |machine|
+
+      machine.vm.box = "#{conf["IMAGE"]}"
+      machine.vm.hostname = "#{name}"
+      machine.vm.network "private_network", bridge: "Internal Switch", auto_config: false
+
+      machine.vm.provider PROVIDER_VM do |p|
+        
+        p.vmname = "#{name}"
+        p.memory = conf["MEMORY"]
+        p.cpus = conf["CPU"]
+        
+      end
+
+      machine.vm.provision "shell", path: "setup/network.sh", args: ["#{PREFIX_ADDRESS}.#{conf["IP"]}", "#{GATEWAY_VM}", "#{GATEWAY_MASK_VM}"]
+
+      machine.vm.provision :reload
+
+      # machine.vm.provision "shell", path: "setup/update.sh"
+
+      machine.vm.provision "shell", path: "setup/docker-install.sh"
+
+      if "#{name}" == "Master"
+
+        machine.vm.provision "shell", path: "setup/master.sh", args: ["#{PREFIX_ADDRESS}.#{conf["IP"]}", "#{TOKEN_PATH}", "#{DOCKER_INFRASTRUCTURE_PATH}", PATH_VOLUMES.join(",")]
+        machine.vm.provision "shell", path: "setup/app.sh", args: ["#{DOCKER_INFRASTRUCTURE_PATH}", "#{DOCKER_STACK_NAME}"]
+
+      else
+
+        machine.vm.provision "shell", path: "setup/workers.sh", args: ["#{PREFIX_ADDRESS}.#{MACHINES["Master"]["IP"]}", "#{PREFIX_ADDRESS}.#{conf["IP"]}", PATH_VOLUMES.join(","), "#{TOKEN_PATH}", "#{DOCKER_PORT}"]
+
+      end
+
+    end
+  end
+end
