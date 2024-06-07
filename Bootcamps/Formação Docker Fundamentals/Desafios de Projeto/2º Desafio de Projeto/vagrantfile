@@ -7,7 +7,7 @@ WINDOWS_IP = `powershell -Command "(ipconfig | findstr /i "IPv4").Split()[-1]"`
 WINDOWS_USERNAME = ENV['USER']
 WINDOWS_DIRECTORY = `powershell -Command "$OutputEncoding = [System.Text.Encoding]::UTF8; $PWD.Path"`
 
-PREFIX_ADDRESS = "172.19.120"
+PREFIX_ADDRESS = "172.23.50"
 
 DOCKER_PORT = "2377"
 
@@ -21,8 +21,11 @@ MACHINES = {
 }
 
 TOKEN_PATH = "/home/vagrant/tokens/token-#{PREFIX_ADDRESS}.#{MACHINES["Master"]["IP"]}.txt"
-DOCKER_INFRASTRUCTURE_PATH = "/home/vagrant/compose"
+DOCKER_INFRASTRUCTURE_PATH = "/home/vagrant/compose/"
 DOCKER_STACK_NAME = "tasks"
+DOCKER_NODES = MACHINES.length
+
+APP_OUTPUT_LOG_PATH = "/tmp/app_output.log"
 
 PATH_VOLUMES = [
 
@@ -66,7 +69,7 @@ Vagrant.configure("2") do |config|
       if "#{name}" == "Master"
 
         machine.vm.provision "shell", path: "setup/master.sh", args: ["#{PREFIX_ADDRESS}.#{conf["IP"]}", "#{TOKEN_PATH}", "#{DOCKER_INFRASTRUCTURE_PATH}", PATH_VOLUMES.join(",")]
-        machine.vm.provision "shell", path: "setup/app.sh", args: ["#{DOCKER_INFRASTRUCTURE_PATH}", "#{DOCKER_STACK_NAME}"]
+        machine.vm.provision "shell", path: "setup/app.sh", args: ["#{DOCKER_INFRASTRUCTURE_PATH}", "#{DOCKER_STACK_NAME}", "#{DOCKER_NODES}", "#{APP_OUTPUT_LOG_PATH}"]
 
       else
 

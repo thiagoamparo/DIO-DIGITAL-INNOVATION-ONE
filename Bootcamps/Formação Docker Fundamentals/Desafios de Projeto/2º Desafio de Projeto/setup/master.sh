@@ -9,8 +9,8 @@ echo "Configurando Node Master ($HOST_IP)."
 
 echo "Iniciando Docker Swarm..."
 
-sudo mkdir -p "$(dirname "$DOCKER_INFRASTRUCTURE_PATH")"
-sudo chown vagrant:vagrant "$(dirname "$DOCKER_INFRASTRUCTURE_PATH")"
+sudo mkdir -p $DOCKER_INFRASTRUCTURE_PATH
+sudo chown vagrant:vagrant $DOCKER_INFRASTRUCTURE_PATH
 
 sudo docker swarm init --advertise-addr=$HOST_IP
 
