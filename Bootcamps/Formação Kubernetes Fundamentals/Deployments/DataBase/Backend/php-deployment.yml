@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app-php
+  labels:
+    app: web-app-php
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web-app-php
+  template:
+    metadata:
+      labels:
+        app: web-app-php
+    spec:
+      containers:
+      - name: web-app-php
+        image: denilsonbonatti/php:1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-app-php-service
+spec:
+  type: NodePort
+  ports:
+    - targetPort: 80
+      port: 80
+      nodePort: 30001
+  selector:
+    app: web-app-php

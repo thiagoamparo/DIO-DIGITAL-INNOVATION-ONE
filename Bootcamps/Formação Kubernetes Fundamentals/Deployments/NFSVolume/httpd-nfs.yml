@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: fileserver-httpd
+spec:
+  capacity:
+    storage: 30Mi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: /database/
+    server: 127.0.0.1
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: fileserver-httpd
+spec:  
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  volumeName: fileserver-httpd
+  resources:
+    requests:
+      storage: 30Mi
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpd
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: httpd
+  template:
+    metadata:
+      labels:
+        app: httpd
+    spec:
+      containers:
+      - image: httpd:latest
+        name: httpd
+        ports:
+        - containerPort: 80
+          name: httpd
+        
+        volumeMounts:
+        - name: fileserver-httpd
+          mountPath: /usr/local/apache2/htdocs/
+      volumes:
+      - name: fileserver-httpd
+        PersistentVolumeClaim:
+          claimName: fileserver-httpd
