@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: tasks-persistent-volume-local
+  labels:
+    type: tasks-persistent-volume-local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 30Mi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /database/
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tasks-persistent-volume-local
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 30Mi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tasks-database
+spec:
+  selector:
+    matchLabels:
+      app: tasks-database
+  template:
+    metadata:
+      labels:
+        app: tasks-database
+    spec:
+      containers:
+      - image: localhost:5000/tasks-database:1.0
+        name: tasks-database
+        args:
+        - "--ignore-db-dir=lost+found"
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3306
+          name: tasks-database
+        
+        volumeMounts:
+        - name: tasks-persistent-volume-local
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: tasks-persistent-volume-local
+        persistentVolumeClaim:
+          claimName: tasks-persistent-volume-local
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tasks-backend
+  labels:
+    app: tasks-backend
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: tasks-backend
+  template:
+    metadata:
+      labels:
+        app: tasks-backend
+    spec:
+      containers:
+      - name: tasks-backend
+        image: localhost:5000/tasks-backend:1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80

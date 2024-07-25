@@ -1,0 +1,5 @@
+CREATE TABLE List (
+    ID INT PRIMARY KEY, 
+    Name VARCHAR(255), 
+    Control TINYINT(1) DEFAULT 0
+);

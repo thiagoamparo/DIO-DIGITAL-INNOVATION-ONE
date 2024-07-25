@@ -1,0 +1,8 @@
+FROM webdevops/php-apache:alpine-php7
+
+COPY /php/connection.php /app
+COPY /php/tasks.php /app
+
+COPY /config/cors.conf /etc/apache2/conf.d/
+
+EXPOSE 80
